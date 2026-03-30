@@ -1,0 +1,16 @@
+{
+  "agent_name": "cicd_generation_agent",
+  "protocol": "ACP",
+  "success": true,
+  "data": {
+    "protocol": "ACP",
+    "provider": "github",
+    "summary": "Generated 2 pipeline template(s) for github",
+    "pipelines": {
+      ".github/workflows/hb_electronics-pipeline.yml": "name: hb_electronics-pipeline\non:\n  push:\n    branches: [ main ]\n  pull_request:\n\njobs:\n  build-and-test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Build\n        run: |\n          npm ci\n          npm run build\n      - name: Test\n        run: |\n          npm test -- --watch=false\n",
+      ".github/workflows/gestiondestock-pipeline.yml": "name: gestiondestock-pipeline\non:\n  push:\n    branches: [ main ]\n  pull_request:\n\njobs:\n  build-and-test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Build\n        run: |\n          mvn -B clean package -DskipTests\n      - name: Test\n        run: |\n          mvn -B test\n"
+    }
+  },
+  "error": null,
+  "duration_seconds": 0.0
+}

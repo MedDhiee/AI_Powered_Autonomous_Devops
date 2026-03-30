@@ -1,0 +1,220 @@
+{
+  "services": [
+    {
+      "name": "hb_electronics",
+      "path": "gestion_stock\\gestion_stock_ui\\hb_electronics",
+      "stack": "nodejs",
+      "config_files": [
+        "package.json"
+      ],
+      "dependencies": [
+        "@angular-devkit/build-angular",
+        "@angular/animations",
+        "@angular/cli",
+        "@angular/common",
+        "@angular/compiler",
+        "@angular/compiler-cli",
+        "@angular/core",
+        "@angular/forms",
+        "@angular/platform-browser",
+        "@angular/platform-browser-dynamic",
+        "@angular/router",
+        "@fortawesome/fontawesome-free",
+        "@types/bonjour",
+        "@types/cors",
+        "@types/estree",
+        "@types/jasmine",
+        "@types/jest",
+        "@types/ws",
+        "angular-eslint",
+        "bootstrap",
+        "chart.js",
+        "eslint",
+        "jasmine-core",
+        "jwt-decode",
+        "karma",
+        "karma-chrome-launcher",
+        "karma-coverage",
+        "karma-jasmine",
+        "karma-jasmine-html-reporter",
+        "ng-packagr",
+        "ng-swagger-gen",
+        "protractor",
+        "rxjs",
+        "ts-node",
+        "tslib",
+        "tslint",
+        "typescript",
+        "typescript-eslint",
+        "zone.js"
+      ],
+      "dependency_tool_output": {
+        "command": "npm ls --json (fallback: package.json)",
+        "dependencies": [
+          "@angular-devkit/build-angular",
+          "@angular/animations",
+          "@angular/cli",
+          "@angular/common",
+          "@angular/compiler",
+          "@angular/compiler-cli",
+          "@angular/core",
+          "@angular/forms",
+          "@angular/platform-browser",
+          "@angular/platform-browser-dynamic",
+          "@angular/router",
+          "@fortawesome/fontawesome-free",
+          "@types/bonjour",
+          "@types/cors",
+          "@types/estree",
+          "@types/jasmine",
+          "@types/jest",
+          "@types/ws",
+          "angular-eslint",
+          "bootstrap",
+          "chart.js",
+          "eslint",
+          "jasmine-core",
+          "jwt-decode",
+          "karma",
+          "karma-chrome-launcher",
+          "karma-coverage",
+          "karma-jasmine",
+          "karma-jasmine-html-reporter",
+          "ng-packagr",
+          "ng-swagger-gen",
+          "protractor",
+          "rxjs",
+          "ts-node",
+          "tslib",
+          "tslint",
+          "typescript",
+          "typescript-eslint",
+          "zone.js"
+        ],
+        "raw_summary": {
+          "dependency_count": 39,
+          "fallback": "package.json"
+        },
+        "success": true,
+        "error": "Command not found: npm"
+      },
+      "exposed_ports": [
+        80
+      ],
+      "database_connections": []
+    },
+    {
+      "name": "gestiondestock",
+      "path": "gestion_stock\\gestiondestock",
+      "stack": "java-maven",
+      "config_files": [
+        "pom.xml"
+      ],
+      "dependencies": [
+        "com.flickr4java:flickr4java",
+        "com.itextpdf:itextpdf",
+        "com.mysql:mysql-connector-j",
+        "io.jsonwebtoken:jjwt",
+        "io.micrometer:micrometer-registry-prometheus",
+        "javax.xml.bind:jaxb-api",
+        "junit:junit",
+        "org.projectlombok:lombok",
+        "org.springdoc:springdoc-openapi-ui",
+        "org.springframework.boot:spring-boot-starter",
+        "org.springframework.boot:spring-boot-starter-actuator",
+        "org.springframework.boot:spring-boot-starter-data-jpa",
+        "org.springframework.boot:spring-boot-starter-security",
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.springframework.boot:spring-boot-starter-web",
+        "org.springframework.security:spring-security-test"
+      ],
+      "dependency_tool_output": {
+        "command": "mvn dependency:tree -DoutputType=text (fallback: pom.xml)",
+        "dependencies": [
+          "com.flickr4java:flickr4java",
+          "com.itextpdf:itextpdf",
+          "com.mysql:mysql-connector-j",
+          "io.jsonwebtoken:jjwt",
+          "io.micrometer:micrometer-registry-prometheus",
+          "javax.xml.bind:jaxb-api",
+          "junit:junit",
+          "org.projectlombok:lombok",
+          "org.springdoc:springdoc-openapi-ui",
+          "org.springframework.boot:spring-boot-starter",
+          "org.springframework.boot:spring-boot-starter-actuator",
+          "org.springframework.boot:spring-boot-starter-data-jpa",
+          "org.springframework.boot:spring-boot-starter-security",
+          "org.springframework.boot:spring-boot-starter-test",
+          "org.springframework.boot:spring-boot-starter-web",
+          "org.springframework.security:spring-security-test"
+        ],
+        "raw_summary": {
+          "dependency_count": 16,
+          "fallback": "pom.xml"
+        },
+        "success": true,
+        "error": "Command not found: mvn"
+      },
+      "exposed_ports": [
+        8081
+      ],
+      "database_connections": [
+        "jdbc:mysql://localhost:3306/gestion",
+        "mysql://localhost:3306/gestion?createDatabaseIfNotExist=true&userSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+      ]
+    }
+  ],
+  "dependencies": {
+    "hb_electronics": [],
+    "gestiondestock": []
+  },
+  "graph": {
+    "directed": true,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+      {
+        "stack": "nodejs",
+        "path": "gestion_stock\\gestion_stock_ui\\hb_electronics",
+        "exposed_ports": [
+          80
+        ],
+        "database_connections": [],
+        "id": "hb_electronics"
+      },
+      {
+        "stack": "java-maven",
+        "path": "gestion_stock\\gestiondestock",
+        "exposed_ports": [
+          8081
+        ],
+        "database_connections": [
+          "jdbc:mysql://localhost:3306/gestion",
+          "mysql://localhost:3306/gestion?createDatabaseIfNotExist=true&userSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"
+        ],
+        "id": "gestiondestock"
+      }
+    ],
+    "links": []
+  },
+  "mermaid_diagram": "graph TD\n    hb_electronics[\"hb_electronics\\n(nodejs)\"]\n    gestiondestock[\"gestiondestock\\n(java-maven)\"]\n    db_jdbc_mysql___localhost_3306_gestion[(\"DB: jdbc:mysql://localhost:33...\")]\n    gestiondestock -->|connects| db_jdbc_mysql___localhost_3306_gestion\n    db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc[(\"DB: mysql://localhost:3306/ge...\")]\n    gestiondestock -->|connects| db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc\n    class hb_electronics,gestiondestock mservice\n    class db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc,db_jdbc_mysql___localhost_3306_gestion mdb\n    classDef mservice fill:#e1f5fe,stroke:#333,stroke-width:2px;\n    classDef mdb fill:#fff3e0,stroke:#333,stroke-width:2px;",
+  "meta": {
+    "service_count": 2,
+    "repository": "gestion_stock"
+  },
+  "llm_output": {
+    "architecture_summary": "The system is a two‑tier application consisting of a Node.js/Angular front‑end service (hb_electronics) exposing a UI on port 80 and a Java Spring Boot back‑end service (gestiondestock) exposing REST APIs on port 8081. The back‑end connects to a MySQL database (named gestion) at localhost:3306 using JDBC. The front‑end communicates with the back‑end over HTTP; there are no direct database connections from the UI. Security is handled by Spring Security with JWT, and observability is partially covered by Spring Boot Actuator and Prometheus support. Currently the services run on the same host with no container orchestration or externalized configuration.",
+    "recommendations": [
+      "Containerize both services with Docker and orchestrate them using docker‑compose or Kubernetes to provide consistent runtime environments and enable scaling.",
+      "Externalize configuration (e.g., environment variables or a configuration server) for database credentials, JWT secret, and other settings; avoid hard‑coding values.",
+      "Place a reverse proxy such as Nginx in front of the Angular UI to serve static assets, handle TLS termination, and proxy API requests to the Spring Boot back‑end.",
+      "Move the MySQL database to a dedicated container or a managed service and restrict network access; avoid using localhost in production to improve security and availability.",
+      "Set up CI/CD pipelines (GitHub Actions, GitLab CI, etc.) to automate building, testing, and pushing Docker images to a registry.",
+      "Implement centralized logging (e.g., ELK stack or Loki) and metrics collection (Prometheus + Grafana) for both services.",
+      "Add health‑check endpoints (/health) for Kubernetes liveness and readiness probes and ensure the front‑end can gracefully handle back‑end unavailability.",
+      "Consider introducing a service mesh (Istio or Linkerd) if the microservices footprint grows, for traffic management and stronger security.",
+      "Review and prune production dependencies; remove unused dev‑only packages (e.g., karma, protractor) from the final images to reduce the attack surface."
+    ],
+    "system_diagram_description": "A user request reaches the Node.js/Angular front‑end (hb_electronics) listening on port 80. The UI then issues HTTP calls to the Spring Boot back‑end (gestiondestock) exposed on port 8081. The back‑end processes business logic, authenticates requests using JWT, and performs CRUD operations on a MySQL database (gestion) accessible via JDBC at jdbc:mysql://localhost:3306/gestion. The front‑end has no direct database connectivity; all data flow passes through the back‑end. In diagrammatic form: [User] → (port 80) hb_electronics (Node/Angular) → (HTTP) → (port 8081) gestiondestock (Spring Boot) → (JDBC) → MySQL DB (gestion)."
+  }
+}

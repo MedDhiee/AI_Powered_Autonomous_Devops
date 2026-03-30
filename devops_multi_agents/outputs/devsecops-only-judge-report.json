@@ -1,0 +1,61 @@
+{
+  "models": {
+    "a": "minimax-m2.7:cloud",
+    "b": "glm-5:cloud"
+  },
+  "metrics": {
+    "agents": {
+      "devsecops_security_agent": {
+        "model_a": {
+          "success": true,
+          "structure_completeness": 1.0,
+          "actionability": 1.0,
+          "consistency": 1.0,
+          "latency_seconds": 187.6128,
+          "efficiency": 0.32,
+          "overall_score": 93.385,
+          "devsecops_llm_quality": 0.871
+        },
+        "model_b": {
+          "success": true,
+          "structure_completeness": 1.0,
+          "actionability": 0.833,
+          "consistency": 1.0,
+          "latency_seconds": 188.4548,
+          "efficiency": 0.318,
+          "overall_score": 88.898,
+          "devsecops_llm_quality": 0.759
+        },
+        "winner": "minimax-m2.7:cloud",
+        "score_delta": 4.487
+      }
+    },
+    "global": {
+      "wins": {
+        "minimax-m2.7:cloud": 1,
+        "glm-5:cloud": 0,
+        "tie": 0
+      },
+      "overall_winner": "minimax-m2.7:cloud"
+    }
+  },
+  "judge": {
+    "evaluation_summary": "Model A (minimax-m2.7:cloud) outperforms Model B (glm-5:cloud) across all key metrics for the devsecops_security_agent, achieving higher overall score, better actionability and LLM quality, while maintaining comparable latency and efficiency.",
+    "per_agent": {
+      "devsecops_security_agent": {
+        "winner": "minimax-m2.7:cloud",
+        "rationale": "Model A has a higher overall_score (93.385 vs 88.898), perfect actionability (1.0 vs 0.833), superior devsecops_llm_quality (0.871 vs 0.759), slightly lower latency, and marginally better efficiency, while both models tie on structure completeness and consistency.",
+        "confidence_0_to_1": 0.92,
+        "metrics_comment": "Model A leads in overall_score (+4.487), actionability (+0.167), and LLM quality (+0.112). Latency is 0.842s faster and efficiency is 0.002 higher. These advantages combine to a clear win."
+      }
+    },
+    "global_winner": "minimax-m2.7:cloud",
+    "recommendations": [
+      "For Model B, focus on improving actionability and LLM-generated output quality.",
+      "Investigate latency sources to reduce execution time closer to Model A's level.",
+      "Maintain the current strengths in structure completeness and consistency for both models."
+    ],
+    "judge_model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+    "judge_attempt": 1
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "models": {
+    "a": "minimax-m2.7:cloud",
+    "b": "kimi-k2.5:cloud"
+  },
+  "metrics": {
+    "agents": {
+      "cicd_generation_agent": {
+        "model_a": {
+          "success": true,
+          "structure_completeness": 1.0,
+          "actionability": 0.0,
+          "consistency": 1.0,
+          "latency_seconds": 0.0,
+          "efficiency": 0.5,
+          "overall_score": 77.5
+        },
+        "model_b": {
+          "success": true,
+          "structure_completeness": 1.0,
+          "actionability": 0.0,
+          "consistency": 1.0,
+          "latency_seconds": 0.0,
+          "efficiency": 0.5,
+          "overall_score": 77.5
+        },
+        "winner": "tie",
+        "score_delta": 0.0
+      }
+    },
+    "global": {
+      "wins": {
+        "minimax-m2.7:cloud": 0,
+        "kimi-k2.5:cloud": 0,
+        "tie": 1
+      },
+      "overall_winner": "tie"
+    }
+  },
+  "judge": {
+    "evaluation_summary": "Both models performed identically on the cicd_generation_agent task, yielding equal scores across all metrics and resulting in a tie.",
+    "per_agent": {
+      "cicd_generation_agent": {
+        "winner": "tie",
+        "rationale": "Model A and Model B have identical metric values: success=true, structure_completeness=1.0, actionability=0.0, consistency=1.0, latency_seconds=0.0, efficiency=0.5, overall_score=77.5.",
+        "confidence_0_to_1": 1.0,
+        "metrics_comment": "Both achieved perfect structure and consistency, zero actionability, negligible latency, and moderate efficiency."
+      }
+    },
+    "global_winner": "tie",
+    "recommendations": [
+      "Focus on improving actionability scores to produce more usable pipeline definitions.",
+      "Consider varying latency or efficiency trade‑offs to differentiate model performance.",
+      "Add more diverse test cases to reveal subtle differences between models."
+    ],
+    "judge_model_used": "nvidia/nemotron-3-super-120b-a12b:free",
+    "judge_attempt": 1
+  }
+}

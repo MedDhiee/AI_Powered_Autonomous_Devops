@@ -1,0 +1,11 @@
+graph TD
+    hb_electronics["hb_electronics\n(nodejs)"]
+    gestiondestock["gestiondestock\n(java-maven)"]
+    db_jdbc_mysql___localhost_3306_gestion[("DB: jdbc:mysql://localhost:33...")]
+    gestiondestock -->|connects| db_jdbc_mysql___localhost_3306_gestion
+    db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc[("DB: mysql://localhost:3306/ge...")]
+    gestiondestock -->|connects| db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc
+    class hb_electronics,gestiondestock mservice
+    class db_jdbc_mysql___localhost_3306_gestion,db_mysql___localhost_3306_gestion_createdatabaseifnotexist_true_userssl_false_useunicode_true_usejdbccomplianttimezoneshift_true_uselegacydatetimecode_false_servertimezone_utc mdb
+    classDef mservice fill:#e1f5fe,stroke:#333,stroke-width:2px;
+    classDef mdb fill:#fff3e0,stroke:#333,stroke-width:2px;
