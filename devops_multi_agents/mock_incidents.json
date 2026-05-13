@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "INC-001",
+    "status": "open",
+    "severity": "high",
+    "environment": "production",
+    "service_names": ["inventory-api"],
+    "summary": "Pod inventory-api-pod keeps restarting with OOMKilled – container exceeded memory limit",
+    "last_error_payload": [
+      {
+        "stderr_tail": "FATAL: Termination signal received\nJava HotSpot(TM) 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000c0000000, 1073741824, 0) failed; error='Not enough space' (errno=12)\nkubectl describe pod inventory-api-7d4b9c6f8-xk2pq: OOMKilled exit code 137\nLast State: Terminated Reason: OOMKilled Exit Code: 137"
+      }
+    ],
+    "occurrences": 7,
+    "created_at": "2026-04-23T08:12:00Z"
+  },
+  {
+    "_id": "INC-002",
+    "status": "open",
+    "severity": "high",
+    "environment": "ci",
+    "service_names": ["payment-service"],
+    "summary": "Gitleaks scan detected hardcoded AWS secret access key in payment-service repository",
+    "last_error_payload": [
+      {
+        "stderr_tail": "WRN leaks found: 1\nFinding:     AKIAIOSFODNN7EXAMPLE\nSecret:      wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\nRuleID:      aws-secret-access-key\nFile:        src/config/aws_client.py\nLine:        14\nFingerprint: src/config/aws_client.py:aws-secret-access-key:14\nError: Process completed with exit code 1"
+      }
+    ],
+    "occurrences": 1,
+    "created_at": "2026-04-23T09:30:00Z"
+  },
+  {
+    "_id": "INC-003",
+    "status": "investigating",
+    "severity": "medium",
+    "environment": "ci",
+    "service_names": ["notification-service", "security-scanner"],
+    "summary": "Trivy vulnerability scanner fails to download vulnerability DB – FATAL context deadline exceeded on ghcr.io connection",
+    "last_error_payload": [
+      {
+        "stderr_tail": "2026-04-23T09:44:55Z FATAL failed to download vulnerability DB: failed to download: OCI artifact not found\nGet \"https://ghcr.io/v2/aquasecurity/trivy-db/manifests/2\": dial tcp 140.82.121.3:443: connect: connection timed out\n2026-04-23T09:44:55Z FATAL context deadline exceeded (Client.Timeout exceeded while awaiting headers)"
+      }
+    ],
+    "occurrences": 3,
+    "created_at": "2026-04-23T09:45:00Z"
+  },
+  {
+    "_id": "INC-004",
+    "status": "open",
+    "severity": "high",
+    "environment": "production",
+    "service_names": ["order-service", "api-gateway"],
+    "summary": "GitHub Actions self-hosted runner offline – jobs stuck in queued state for 45+ minutes, no runner matching labels [self-hosted, linux, x64, production]",
+    "last_error_payload": [
+      {
+        "stderr_tail": "Error: No runner matching the specified labels was found: [self-hosted, linux, x64, production]\nThe workflow is not able to proceed because there are no available runners.\nJob 'deploy-production' has been waiting for a runner for 45 minutes.\nCheck runner status at: Settings > Actions > Runners\nRunner 'prod-runner-01' last seen: 2026-04-23T08:55:00Z (offline)"
+      }
+    ],
+    "occurrences": 5,
+    "created_at": "2026-04-23T10:05:00Z"
+  }
+]

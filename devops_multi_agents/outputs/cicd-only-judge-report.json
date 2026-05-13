@@ -1,59 +1,70 @@
 {
+  "evaluation_type": "evaluation_correction_avec_reference",
+  "decision_source": "reference_metrics",
   "models": {
     "a": "minimax-m2.7:cloud",
     "b": "kimi-k2.5:cloud"
   },
-  "metrics": {
-    "agents": {
-      "cicd_generation_agent": {
+  "reference_roles": [
+    "backend",
+    "frontend"
+  ],
+  "reference_metrics": {
+    "per_role": {
+      "backend": {
+        "winner": "minimax-m2.7:cloud",
+        "similarity_threshold": 0.0,
         "model_a": {
-          "success": true,
-          "structure_completeness": 1.0,
-          "actionability": 0.0,
-          "consistency": 1.0,
-          "latency_seconds": 0.0,
-          "efficiency": 0.5,
-          "overall_score": 77.5
+          "score": 76.79,
+          "similarity_pass": true,
+          "stage_coverage": 1.0,
+          "trigger_coverage": 1.0,
+          "security_coverage": 1.0,
+          "docker_coverage": 1.0,
+          "text_similarity": 0.337,
+          "pipeline_path": ".github/workflows/gestiondestock-pipeline.yml"
         },
         "model_b": {
-          "success": true,
-          "structure_completeness": 1.0,
-          "actionability": 0.0,
-          "consistency": 1.0,
-          "latency_seconds": 0.0,
-          "efficiency": 0.5,
-          "overall_score": 77.5
+          "score": 66.451,
+          "similarity_pass": true,
+          "stage_coverage": 1.0,
+          "trigger_coverage": 1.0,
+          "security_coverage": 1.0,
+          "docker_coverage": 1.0,
+          "text_similarity": 0.041,
+          "pipeline_path": ".github/workflows/gestiondestock-pipeline.yml"
+        }
+      },
+      "frontend": {
+        "winner": "kimi-k2.5:cloud",
+        "similarity_threshold": 0.0,
+        "model_a": {
+          "score": 69.108,
+          "similarity_pass": true,
+          "stage_coverage": 1.0,
+          "trigger_coverage": 1.0,
+          "security_coverage": 1.0,
+          "docker_coverage": 1.0,
+          "text_similarity": 0.117,
+          "pipeline_path": ".github/workflows/hb_electronics-pipeline.yml"
         },
-        "winner": "tie",
-        "score_delta": 0.0
+        "model_b": {
+          "score": 69.722,
+          "similarity_pass": true,
+          "stage_coverage": 1.0,
+          "trigger_coverage": 1.0,
+          "security_coverage": 1.0,
+          "docker_coverage": 1.0,
+          "text_similarity": 0.135,
+          "pipeline_path": ".github/workflows/hb_electronics-pipeline.yml"
+        }
       }
     },
     "global": {
-      "wins": {
-        "minimax-m2.7:cloud": 0,
-        "kimi-k2.5:cloud": 0,
-        "tie": 1
-      },
-      "overall_winner": "tie"
+      "model_a_average": 72.949,
+      "model_b_average": 68.087,
+      "overall_winner": "minimax-m2.7:cloud",
+      "similarity_threshold": 0.0
     }
-  },
-  "judge": {
-    "evaluation_summary": "Both models performed identically on the cicd_generation_agent task, yielding equal scores across all metrics and resulting in a tie.",
-    "per_agent": {
-      "cicd_generation_agent": {
-        "winner": "tie",
-        "rationale": "Model A and Model B have identical metric values: success=true, structure_completeness=1.0, actionability=0.0, consistency=1.0, latency_seconds=0.0, efficiency=0.5, overall_score=77.5.",
-        "confidence_0_to_1": 1.0,
-        "metrics_comment": "Both achieved perfect structure and consistency, zero actionability, negligible latency, and moderate efficiency."
-      }
-    },
-    "global_winner": "tie",
-    "recommendations": [
-      "Focus on improving actionability scores to produce more usable pipeline definitions.",
-      "Consider varying latency or efficiency trade‑offs to differentiate model performance.",
-      "Add more diverse test cases to reveal subtle differences between models."
-    ],
-    "judge_model_used": "nvidia/nemotron-3-super-120b-a12b:free",
-    "judge_attempt": 1
   }
 }

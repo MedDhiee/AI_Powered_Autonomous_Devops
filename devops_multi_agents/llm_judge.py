@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ast
+import difflib
 import json
 import logging
 import os
@@ -27,6 +29,124 @@ AGENTS = [
 
 
 class LLMJudge:
+	def compare_cicd_with_reference(
+		self,
+		*,
+		model_a: str,
+		model_b: str,
+		generated_model_a: dict[str, dict[str, str]],
+		generated_model_b: dict[str, dict[str, str]],
+		reference_pipelines: dict[str, str],
+		judge_model: str | None = None,
+		judge_provider: str | None = None,
+		require_real_judge: bool = False,
+		evaluation_type: str = "evaluation_correction_avec_reference",
+	) -> dict[str, Any]:
+		heuristic = self._compute_cicd_reference_metrics(
+			model_a=model_a,
+			model_b=model_b,
+			generated_model_a=generated_model_a,
+			generated_model_b=generated_model_b,
+			reference_pipelines=reference_pipelines,
+		)
+
+		metrics, workflow_a, workflow_b = self._reference_metrics_to_judge_inputs(
+			model_a=model_a,
+			model_b=model_b,
+			heuristic=heuristic,
+			generated_model_a=generated_model_a,
+			generated_model_b=generated_model_b,
+			reference_pipelines=reference_pipelines,
+		)
+
+		llm_judgement = self._run_llm_judge(
+			model_a=model_a,
+			model_b=model_b,
+			metrics=metrics,
+			workflow_a=workflow_a,
+			workflow_b=workflow_b,
+			judge_model=judge_model,
+			judge_provider=judge_provider,
+			require_real_judge=require_real_judge,
+		)
+
+		return {
+			"evaluation_type": evaluation_type,
+			"decision_source": "reference_metrics_and_llm_judge",
+			"models": {"a": model_a, "b": model_b},
+			"reference_roles": sorted(list(reference_pipelines.keys())),
+			"reference_metrics": heuristic,
+			"judge": llm_judgement,
+		}
+
+	def _reference_metrics_to_judge_inputs(
+		self,
+		*,
+		model_a: str,
+		model_b: str,
+		heuristic: dict[str, Any],
+		generated_model_a: dict[str, dict[str, str]],
+		generated_model_b: dict[str, dict[str, str]],
+		reference_pipelines: dict[str, str],
+	) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+		global_block = heuristic.get("global", {}) if isinstance(heuristic, dict) else {}
+		avg_a = float(global_block.get("model_a_average", 0.0) or 0.0)
+		avg_b = float(global_block.get("model_b_average", 0.0) or 0.0)
+
+		delta = avg_a - avg_b
+		if abs(delta) < 1e-9:
+			winner = "tie"
+		else:
+			winner = model_a if delta > 0 else model_b
+
+		metrics = {
+			"agents": {
+				"cicd_generation_agent": {
+					"model_a": {"overall_score": round(avg_a, 3)},
+					"model_b": {"overall_score": round(avg_b, 3)},
+					"winner": winner,
+					"score_delta": round(abs(delta), 3),
+				}
+			},
+			"global": {
+				"wins": {
+					model_a: 1 if winner == model_a else 0,
+					model_b: 1 if winner == model_b else 0,
+					"tie": 1 if winner == "tie" else 0,
+				},
+				"overall_winner": winner,
+			},
+		}
+
+		workflow_a = {
+			"agents": {
+				"cicd_generation_agent": {
+					"success": True,
+					"data": {
+						"provider": "github",
+						"pipelines": generated_model_a,
+						"reference_roles": sorted(list(reference_pipelines.keys())),
+					},
+					"duration_seconds": 0.0,
+				}
+			}
+		}
+		workflow_b = {
+			"agents": {
+				"cicd_generation_agent": {
+					"success": True,
+					"data": {
+						"provider": "github",
+						"pipelines": generated_model_b,
+						"reference_roles": sorted(list(reference_pipelines.keys())),
+					},
+					"duration_seconds": 0.0,
+				}
+			}
+		}
+
+		return metrics, workflow_a, workflow_b
+
 	def compare_models(
 		self,
 		model_a: str,
@@ -34,6 +154,7 @@ class LLMJudge:
 		workflow_a: dict[str, Any],
 		workflow_b: dict[str, Any],
 		judge_model: str | None = None,
+		judge_provider: str | None = None,
 		require_real_judge: bool = False,
 	) -> dict[str, Any]:
 		metrics = self._compute_metrics(model_a, model_b, workflow_a, workflow_b)
@@ -44,6 +165,7 @@ class LLMJudge:
 			workflow_a=workflow_a,
 			workflow_b=workflow_b,
 			judge_model=judge_model,
+			judge_provider=judge_provider,
 			require_real_judge=require_real_judge,
 		)
 		return {
@@ -51,6 +173,191 @@ class LLMJudge:
 			"metrics": metrics,
 			"judge": llm_judgement,
 		}
+
+	@staticmethod
+	def _resolve_judge_provider(judge_provider: str | None) -> str:
+		if judge_provider is None:
+			return resolve_provider("JUDGE_LLM_PROVIDER", default_provider="ollama")
+
+		normalized = str(judge_provider).strip().lower()
+		if normalized in {"openrouter", "groq", "ollama"}:
+			return normalized
+
+		raise ValueError(
+			f"Unsupported judge provider '{judge_provider}'. Supported providers: openrouter, groq, ollama"
+		)
+
+	def _parse_llm_json_object(self, raw_content: str) -> dict[str, Any]:
+		value = strip_markdown_code_fence(str(raw_content or "")).strip()
+		if not value:
+			raise ValueError("LLM returned empty content")
+
+		candidates: list[str] = [value]
+		start = value.find("{")
+		end = value.rfind("}")
+		if start != -1 and end != -1 and end > start:
+			extracted = value[start : end + 1].strip()
+			if extracted and extracted not in candidates:
+				candidates.append(extracted)
+
+		for candidate in candidates:
+			try:
+				parsed = json.loads(candidate)
+				if isinstance(parsed, dict):
+					return parsed
+			except Exception:
+				pass
+
+		for candidate in candidates:
+			try:
+				parsed = ast.literal_eval(candidate)
+				if isinstance(parsed, dict):
+					return parsed
+			except Exception:
+				pass
+
+		raise ValueError("LLM output is not a valid JSON object")
+
+	def _compute_cicd_reference_metrics(
+		self,
+		*,
+		model_a: str,
+		model_b: str,
+		generated_model_a: dict[str, dict[str, str]],
+		generated_model_b: dict[str, dict[str, str]],
+		reference_pipelines: dict[str, str],
+	) -> dict[str, Any]:
+		roles = sorted(set(reference_pipelines.keys()) | set(generated_model_a.keys()) | set(generated_model_b.keys()))
+		per_role: dict[str, Any] = {}
+		total_a = 0.0
+		total_b = 0.0
+
+		for role in roles:
+			reference_yaml = str(reference_pipelines.get(role, "") or "")
+			candidate_a = generated_model_a.get(role, {})
+			candidate_b = generated_model_b.get(role, {})
+			yaml_a = str(candidate_a.get("yaml", "") or "")
+			yaml_b = str(candidate_b.get("yaml", "") or "")
+
+			score_a = self._cicd_reference_score(reference_yaml, yaml_a)
+			score_b = self._cicd_reference_score(reference_yaml, yaml_b)
+
+			if abs(score_a["overall_score"] - score_b["overall_score"]) < 1e-9:
+				winner = "tie"
+			else:
+				winner = model_a if score_a["overall_score"] > score_b["overall_score"] else model_b
+
+			per_role[role] = {
+				"winner": winner,
+				"similarity_threshold": score_a["similarity_threshold"],
+				"model_a": {
+					"score": score_a["overall_score"],
+					"similarity_pass": score_a["similarity_pass"],
+					"stage_coverage": score_a["stage_coverage"],
+					"trigger_coverage": score_a["trigger_coverage"],
+					"security_coverage": score_a["security_coverage"],
+					"docker_coverage": score_a["docker_coverage"],
+					"text_similarity": score_a["text_similarity"],
+					"pipeline_path": candidate_a.get("path"),
+				},
+				"model_b": {
+					"score": score_b["overall_score"],
+					"similarity_pass": score_b["similarity_pass"],
+					"stage_coverage": score_b["stage_coverage"],
+					"trigger_coverage": score_b["trigger_coverage"],
+					"security_coverage": score_b["security_coverage"],
+					"docker_coverage": score_b["docker_coverage"],
+					"text_similarity": score_b["text_similarity"],
+					"pipeline_path": candidate_b.get("path"),
+				},
+			}
+
+			total_a += float(score_a["overall_score"])
+			total_b += float(score_b["overall_score"])
+
+		count = max(1, len(roles))
+		avg_a = round(total_a / count, 3)
+		avg_b = round(total_b / count, 3)
+
+		if abs(avg_a - avg_b) < 1e-9:
+			global_winner = "tie"
+		else:
+			global_winner = model_a if avg_a > avg_b else model_b
+
+		return {
+			"per_role": per_role,
+			"global": {
+				"model_a_average": avg_a,
+				"model_b_average": avg_b,
+				"overall_winner": global_winner,
+				"similarity_threshold": float(os.getenv("CICD_REFERENCE_SIMILARITY_THRESHOLD", "0.30")),
+			},
+		}
+
+
+	def _cicd_reference_score(self, reference_yaml: str, candidate_yaml: str) -> dict[str, float]:
+		candidate = (candidate_yaml or "").lower()
+		reference = (reference_yaml or "").lower()
+		similarity_threshold = float(os.getenv("CICD_REFERENCE_SIMILARITY_THRESHOLD", "0.30"))
+
+		if not candidate.strip():
+			return {
+				"overall_score": 0.0,
+				"similarity_pass": False,
+				"similarity_threshold": round(similarity_threshold, 3),
+				"stage_coverage": 0.0,
+				"trigger_coverage": 0.0,
+				"security_coverage": 0.0,
+				"docker_coverage": 0.0,
+				"text_similarity": 0.0,
+			}
+
+		stage_markers = ["test", "build", "package", "artifact", "security", "deploy"]
+		stage_hits = sum(1 for token in stage_markers if token in candidate)
+		stage_coverage = stage_hits / len(stage_markers)
+
+		trigger_tokens = ["push", "pull_request", "merge_request", "pr:"]
+		trigger_coverage = 1.0 if ("push" in candidate and any(tok in candidate for tok in trigger_tokens[1:])) else 0.5 if "push" in candidate else 0.0
+
+		security_coverage = 1.0 if any(tok in candidate for tok in ["trivy", "snyk", "security", "scan"]) else 0.0
+		docker_coverage = 1.0 if any(tok in candidate for tok in ["docker", "image", "build-push"]) else 0.0
+
+		similarity = 0.0
+		if reference.strip():
+			similarity = difflib.SequenceMatcher(
+				None,
+				reference[:50000],
+				candidate[:50000],
+			).ratio()
+
+		overall_score_raw = round(
+			100.0
+			* (
+				0.35 * similarity
+				+ 0.30 * stage_coverage
+				+ 0.15 * trigger_coverage
+				+ 0.10 * security_coverage
+				+ 0.10 * docker_coverage
+			),
+			3,
+		)
+
+		similarity_pass = similarity >= similarity_threshold
+		overall_score = overall_score_raw if similarity_pass else 0.0
+
+		return {
+			"overall_score": overall_score,
+			"similarity_pass": similarity_pass,
+			"similarity_threshold": round(similarity_threshold, 3),
+			"stage_coverage": round(stage_coverage, 3),
+			"trigger_coverage": round(trigger_coverage, 3),
+			"security_coverage": round(security_coverage, 3),
+			"docker_coverage": round(docker_coverage, 3),
+			"text_similarity": round(similarity, 3),
+		}
+
+
+
 
 	def _compute_metrics(
 		self,
@@ -400,9 +707,10 @@ class LLMJudge:
 		workflow_a: dict[str, Any],
 		workflow_b: dict[str, Any],
 		judge_model: str | None,
+		judge_provider: str | None,
 		require_real_judge: bool,
 	) -> dict[str, Any]:
-		provider = resolve_provider("JUDGE_LLM_PROVIDER", default_provider="openrouter")
+		provider = self._resolve_judge_provider(judge_provider)
 		base_url, api_key = get_provider_connection(provider)
 		if not api_key:
 			if require_real_judge:
@@ -426,12 +734,23 @@ class LLMJudge:
 				groq_env="GROQ_JUDGE_MODEL",
 				groq_default=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
 				ollama_env="OLLAMA_JUDGE_MODEL",
-				ollama_default=os.getenv("OLLAMA_MODEL", "llama3.2"),
+				ollama_default=os.getenv("OLLAMA_MODEL", "nemotron-3-super"),
 			)
 		)
+		provider_fallback_env = {
+			"openrouter": "OPENROUTER_JUDGE_FALLBACK_MODELS",
+			"groq": "GROQ_JUDGE_FALLBACK_MODELS",
+			"ollama": "OLLAMA_JUDGE_FALLBACK_MODELS",
+		}.get(provider, "JUDGE_FALLBACK_MODELS")
+
 		fallback_models = [
 			item.strip()
-			for item in os.getenv("JUDGE_FALLBACK_MODELS", os.getenv("OPENROUTER_JUDGE_FALLBACK_MODELS", "")).split(",")
+			for item in ",".join(
+				[
+					os.getenv("JUDGE_FALLBACK_MODELS", ""),
+					os.getenv(provider_fallback_env, ""),
+				]
+			).split(",")
 			if item.strip()
 		]
 		models_to_try: list[str] = []
@@ -473,13 +792,11 @@ Payload:
 						model=model,
 						messages=[{"role": "user", "content": prompt}],
 					)
-					content = strip_markdown_code_fence(str(response.choices[0].message.content or ""))
-					parsed = json.loads(content)
-					if isinstance(parsed, dict):
-						parsed.setdefault("judge_model_used", model)
-						parsed.setdefault("judge_attempt", attempt)
-						return parsed
-					raise RuntimeError("Judge response was not a JSON object")
+					content = str(response.choices[0].message.content or "")
+					parsed = self._parse_llm_json_object(content)
+					parsed.setdefault("judge_model_used", model)
+					parsed.setdefault("judge_attempt", attempt)
+					return parsed
 				except Exception as exc:
 					err = f"model={model}, attempt={attempt}/{max_retries}: {exc}"
 					attempt_errors.append(err)

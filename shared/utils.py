@@ -47,6 +47,30 @@ def setup_logging(level: str = "INFO") -> None:
 		level=getattr(logging, level.upper(), logging.INFO),
 		format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
 	)
+	# Third-party libraries emit hundreds of DEBUG lines (MongoDB heartbeats,
+	# HTTP connection pools, LLM token streams, …) that bury application logs
+	# and hide interactive prompts.  Clamp them to WARNING regardless of the
+	# user's --log-level choice; WARNING/ERROR from these libs still surface.
+	_NOISY_LOGGERS = (
+		"pymongo",
+		"pymongo.topology",
+		"pymongo.connection",
+		"pymongo.command",
+		"pymongo.serverSelection",
+		"pymongo.monitor",
+		"urllib3",
+		"urllib3.connectionpool",
+		"httpcore",
+		"httpx",
+		"openai",
+		"anthropic",
+		"groq",
+		"httpcore.connection",
+		"httpcore.http11",
+		"charset_normalizer",
+	)
+	for _name in _NOISY_LOGGERS:
+		logging.getLogger(_name).setLevel(logging.WARNING)
 
 
 def load_json_output(path: Path) -> dict[str, Any]:

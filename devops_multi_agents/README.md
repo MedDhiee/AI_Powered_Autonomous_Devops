@@ -171,6 +171,38 @@ Skip image scan in full workflow:
 python -m devops_multi_agents.run_workflow --repo gestion_stock --output-dir devops_multi_agents/outputs --strict-security-tools --skip-image-scan
 ```
 
+Enable CI/CD human validation before pushing generated workflows (human-in-the-loop):
+
+```bash
+python -m devops_multi_agents.run_workflow --repo gestion_stock --output-dir devops_multi_agents/outputs --include-llm --cicd-provider github --cicd-human-validation --push-cicd-pipelines
+```
+
+Non-interactive mode (auto-approve CI/CD push):
+
+```bash
+python -m devops_multi_agents.run_workflow --repo gestion_stock --output-dir devops_multi_agents/outputs --include-llm --cicd-provider github --push-cicd-pipelines --auto-approve-cicd
+```
+
+Notes:
+
+- The workflow files are generated first by the CI/CD agent.
+- If push is enabled and approved, orchestrator stages/commits/pushes generated pipeline files.
+- A successful push is expected to trigger GitHub Actions on repositories configured with workflow `on: push`/`pull_request` triggers.
+
+Run CI/CD-only two-model comparison from orchestrator and generate LLM-as-judge report:
+
+```bash
+python -m devops_multi_agents.run_workflow --repo gestion_stock --output-dir devops_multi_agents/outputs --cicd-provider github --cicd-llm-provider ollama --cicd-model-a minimax-m2.7:cloud --cicd-model-b kimi-k2.5:cloud --cicd-judge-model z-ai/glm-4.5-air:free --require-real-cicd-llm
+```
+
+Generated CI/CD comparison artifacts:
+
+- `devops_multi_agents/outputs/cicd-generation-model-a.json`
+- `devops_multi_agents/outputs/cicd-generation-model-b.json`
+- `devops_multi_agents/outputs/cicd-only-judge-report.json`
+- `devops_multi_agents/outputs/generated-pipelines/model-a/...`
+- `devops_multi_agents/outputs/generated-pipelines/model-b/...`
+
 ## Compare 2 models + LLM-as-judge
 
 Run both models across the full workflow (agent-by-agent outputs), then generate a judge report:

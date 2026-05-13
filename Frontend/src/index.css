@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Dark deep-space theme ── */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+
+    --card: 224 50% 7%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 224 50% 7%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 210 100% 60%;
+    --primary-foreground: 224 71% 4%;
+
+    --secondary: 224 40% 12%;
+    --secondary-foreground: 213 31% 75%;
+
+    --muted: 224 40% 10%;
+    --muted-foreground: 215 20% 50%;
+
+    --accent: 258 88% 66%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 72% 50%;
+    --success-foreground: 224 71% 4%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 224 71% 4%;
+
+    --border: 224 30% 14%;
+    --input: 224 30% 14%;
+    --ring: 210 100% 60%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 224 50% 6%;
+    --sidebar-foreground: 213 31% 80%;
+    --sidebar-primary: 210 100% 60%;
+    --sidebar-primary-foreground: 224 71% 4%;
+    --sidebar-accent: 224 40% 10%;
+    --sidebar-accent-foreground: 213 31% 75%;
+    --sidebar-border: 224 30% 12%;
+    --sidebar-ring: 210 100% 60%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 60%), hsl(258 88% 66%));
+    --gradient-card: linear-gradient(145deg, hsl(224 50% 9%), hsl(224 60% 7%));
+    --gradient-hero: linear-gradient(135deg, hsl(210 100% 60% / 0.12), hsl(258 88% 66% / 0.08));
+
+   
+    --shadow-glow: 0 0 28px hsl(210 100% 60% / 0.25), 0 0 60px hsl(258 88% 66% / 0.10);
+    --shadow-card:
+      0 1px 0 hsl(224 30% 18% / 0.6),
+      0 4px 24px hsl(224 71% 2% / 0.5),
+      0 0 0 1px hsl(224 30% 16% / 0.8);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    background-image: var(--gradient-background);
+    background-attachment: fixed;
+    background-size: cover;
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* Dot-grid overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle, hsl(213 50% 60% / 0.09) 1px, transparent 1px);
+    background-size: 28px 28px;
+    z-index: -1;
+    animation: background-drift 32s ease-in-out infinite alternate;
+  }
+
+ 
+
+  .min-h-screen.bg-background {
+    background-color: transparent;
+    background-image: var(--gradient-background-surface);
+    background-attachment: fixed;
+    position: relative;
+    isolation: isolate;
+  }
+
+  .min-h-screen.bg-background > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@layer utilities {
+  .glow-border {
+    box-shadow: 0 0 0 1px hsl(var(--border)), var(--shadow-glow);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-card {
+    background: linear-gradient(160deg, hsl(224 50% 10% / 0.85), hsl(224 60% 7% / 0.75));
+    border: 1px solid hsl(213 30% 22% / 0.6);
+    box-shadow: var(--shadow-card), 0 8px 32px hsl(258 60% 10% / 0.3), inset 0 1px 0 hsl(213 50% 30% / 0.12);
+    backdrop-filter: blur(14px) saturate(1.6);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out both;
+  }
+}
+
+@keyframes background-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(8px, -12px, 0) scale(1.015); }
+}
+
+@keyframes orb-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  33%  { transform: translate3d(-22px, 16px, 0) scale(1.05) rotate(1.5deg); }
+  66%  { transform: translate3d(18px, -12px, 0) scale(0.96) rotate(-1.5deg); }
+  100% { transform: translate3d(-10px, 22px, 0) scale(1.03) rotate(1deg); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
